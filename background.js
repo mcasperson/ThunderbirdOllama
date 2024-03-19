@@ -14,6 +14,12 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 
         const content = getBody(full)
         const summary = await getSummary(content)
+
+        if (!summary) {
+            console.error("Failed to generate summary for email " + message.subject)
+            continue
+        }
+
         console.log(summary)
         await fetch("https://hooks.slack.com/services/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",
             {
