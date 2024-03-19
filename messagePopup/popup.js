@@ -32,7 +32,8 @@ fetch("http://localhost:11434/api/generate",
         body: JSON.stringify(
             {
                 "model": "mistral",
-                "prompt": "Summarise this email:\n" + getBody(full),
+                "prompt": "[INST] You are a helpful code assistant. "
+                + "Your task is to provide a summary of this email:\n" + getBody(full) + "\n[/INST]",
                 "stream": false
             }
         ),
