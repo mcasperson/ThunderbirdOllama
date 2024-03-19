@@ -20,7 +20,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
                 method: "POST",
                 headers: {"Content-type": "application/json"},
                 body: JSON.stringify({
-                    text: message.subject + "\n" + summary
+                    text: "--------------------------------------------------\n" + message.subject + "\n" + summary
                 })
             })
     }
