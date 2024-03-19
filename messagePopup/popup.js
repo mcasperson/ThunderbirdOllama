@@ -68,7 +68,7 @@ fetch("http://localhost:11434/api/generate",
             {
                 "model": "llama2:13b",
                 "prompt": "[INST] You are a helpful code assistant. "
-                + "Provide a 3 paragraph summary of the following email:\n" + content + "\n[/INST]",
+                + "Provide a two paragraph summary of the following email:\n" + content + "\n[/INST]",
                 "stream": false
             }
         ),
