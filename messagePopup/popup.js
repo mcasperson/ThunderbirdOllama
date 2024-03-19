@@ -31,7 +31,7 @@ fetch("http://localhost:11434/api/generate",
         method: "POST",
         body: JSON.stringify(
             {
-                "model": "llama2",
+                "model": "mistral",
                 "prompt": "Summarise this email:\n" + getBody(full),
                 "stream": false
             }
@@ -40,13 +40,14 @@ fetch("http://localhost:11434/api/generate",
             "Content-Type": "application/json"
         }
     })
-    .then(response => response.text())
-    .then(text => console.log(text))
-
-    /*
     .then(response => response.json())
     .then(data => {
         console.log(data);
-        document.getElementById("summary").textContent = data.response;
+        document.getElementById("summary").innerHTML = textToHtml(data.response)
     })
-    .catch(error => console.error('Error:', error))*/
+    .catch(error => console.error('Error:', error))
+
+function textToHtml(text) {
+    let html = text.replace(/\n/g, '<br>');
+    return html;
+}
