@@ -23,7 +23,7 @@
   ],
   "message_display_action": {
     "default_popup": "messagePopup/popup.html",
-    "default_title": "Details",
+    "default_title": "Summary",
     "default_icon": "images/internet-32px.png"
   }
 }

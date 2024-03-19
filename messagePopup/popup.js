@@ -14,7 +14,7 @@ let full = await messenger.messages.getFull(message.id);
 function getBody(message) {
     let body = ""
     if (message.body) {
-        body += message.body
+        body += removeCSSCommentsFromString(removeCSSFromString(convertToPlain(message.body)))
     }
     if (message.parts) {
         message.parts.forEach(part => {
@@ -25,15 +25,50 @@ function getBody(message) {
     return body
 }
 
+function convertToPlain(html){
+
+    // Create a new div element
+    const tempDivElement = document.createElement("div");
+
+    // Set the HTML content with the given value
+    tempDivElement.innerHTML = html;
+
+    // Retrieve the text property of the element
+    return tempDivElement.textContent || tempDivElement.innerText || "";
+}
+
+function removeCSSFromString(inputString) {
+    // Regular expression to match CSS style declarations
+    const cssRegex = /.*?{[^}]*}/g;
+    // Remove CSS style declarations from the string
+    const outputString = inputString.replace(cssRegex, '');
+    return outputString;
+}
+
+function removeCSSCommentsFromString(inputString) {
+    // Regular expression to match CSS style declarations
+    const cssRegex = /\/\*.*?\*\//g;
+    // Remove CSS style declarations from the string
+    const outputString = inputString.replace(cssRegex, '');
+    return outputString;
+}
+
+const content = getBody(full)
+    .split("\n")
+    .filter(line => line.trim() !== "")
+    .join("\n")
+    .replaceAll("  ", " ")
+console.log(content)
+
 // Need to set the OLLAMA_ORIGINS=moz-extension://* environment variable for Ollama
 fetch("http://localhost:11434/api/generate",
     {
         method: "POST",
         body: JSON.stringify(
             {
-                "model": "mistral",
+                "model": "llama2:13b",
                 "prompt": "[INST] You are a helpful code assistant. "
-                + "Your task is to provide a summary of this email:\n" + getBody(full) + "\n[/INST]",
+                + "Provide a 3 paragraph summary of the following email:\n" + content + "\n[/INST]",
                 "stream": false
             }
         ),
