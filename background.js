@@ -17,6 +17,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         fetch("https://hooks.slack.com/services/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",
             {
                 method: "POST",
+                headers: {"Content-type": "application/json"},
                 body: JSON.stringify({
                     text: summary
                 })
