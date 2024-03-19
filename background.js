@@ -1,12 +1,26 @@
 import * as messageTools from '/modules/messageTools.mjs';
 
 messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
-    const { messageLog } = await messenger.storage.local.get({ messageLog: [] });
+    console.log("New mail received")
 
     for await (let message of messageTools.iterateMessagePages(messages)) {
         const full = await messenger.messages.getFull(message.id);
+
+        // Only process emails received in the last 24 hours
+        if (message.date < new Date() - 1000 * 60 * 60 * 24) {
+            console.log("Skipping email " + message.subject + " received more than 24 hours ago")
+            continue
+        }
+
         const content = getBody(full)
         const summary = await getSummary(content)
+        fetch("https://hooks.slack.com/services/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",
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    text: summary
+                })
+            })
     }
 })
 

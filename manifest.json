@@ -22,6 +22,6 @@
     "webRequest"
   ],
   "background": {
-    "page": "messagePopup/popup.html"
+    "page": "background.html"
   }
 }
