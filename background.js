@@ -147,7 +147,9 @@ function getSummary(content) {
                 {
                     "model": "llama2:13b",
                     "prompt": "[INST] You are a helpful code assistant. "
-                        + "Provide a two paragraph summary of the following email:\n" + content + "\n[/INST]",
+                        + "Provide a two paragraph summary of the following email. "
+                        + "The summary must highlight the important points, dates, people, questions, and action items. "
+                        + "The email is:\n" + content + "\n[/INST]",
                     "stream": false
                 }
             ),
