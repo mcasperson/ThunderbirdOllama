@@ -26,9 +26,18 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         const content = getBody(full)
 
         /*
-            Call Ollama to generate a summary of the email.
+            Call Ollama to generate a summary of the email. The service may be (re)starting,
+            so we retry a few times. Note Ollama queues requests, so there is no benefit to
+            sending multiple requests in parallel.
          */
-        const summary = await getSummary(content)
+        let summary = null
+        for (let i = 0; i < 12; ++i) {
+            summary = await getSummary(content)
+            if (summary) {
+                break
+            }
+            await new Promise(r => setTimeout(r, 5000));
+        }
 
         /*
             If Ollama isn't running or there was another error, log it and exit.
