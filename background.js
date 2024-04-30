@@ -166,7 +166,9 @@ function getSummary(content) {
                 "Content-Type": "application/json"
             }
         })
-        .then(response => response.json())
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .then(result => JSON.parse(result))
         .then(data => data.response)
         .catch(error => console.error('Error:', error))
 }
