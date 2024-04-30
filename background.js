@@ -167,8 +167,10 @@ function getSummary(content) {
             }
         })
         .then(response => response.text())
-        .then(result => console.log(result))
-        .then(result => JSON.parse(result))
+        .then(result => {
+            console.log(result)
+            return JSON.parse(result)
+        })
         .then(data => data.response)
         .catch(error => console.error('Error:', error))
 }
