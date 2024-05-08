@@ -8,6 +8,14 @@ Ollama must be configured to accept HTTP requests from Thunderbird with the foll
 OLLAMA_ORIGINS=moz-extension://*
 ```
 
+## Installing the model
+
+This code uses the `llama3` model by default. This needs to be downloaded with the command:
+
+```
+ollama run llama3
+```
+
 ## Ollama systemd
 
 This is an example systemd service file that sets the required environment variables to support Thunderbird. This was taken from my WSL instance which includes a lot of WSL specific elements in the `PATH` environment variable:
