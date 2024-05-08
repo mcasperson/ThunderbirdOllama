@@ -10,7 +10,7 @@ OLLAMA_ORIGINS=moz-extension://*
 
 ## Ollama systemd
 
-This is an example systemd service file that sets the required environment variables to support Thunderbird:
+This is an example systemd service file that sets the required environment variables to support Thunderbird. This was taken from my WSL instance which includes a lot of WSL specific elements in the `PATH` environment variable:
 
 ```
 [Unit]
