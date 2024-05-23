@@ -49,10 +49,12 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 
         console.log(summary)
 
+        const gettingItem = await browser.storage.sync.get('url');
+
         /*
             Send the summary to Slack.
          */
-        await fetch("https://hooks.slack.com/services/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",
+        await fetch(gettingItem.url,
             {
                 method: "POST",
                 headers: {"Content-type": "application/json"},
