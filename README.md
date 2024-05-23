@@ -2,38 +2,16 @@ A Thunderbird addon that summarises new emails with Ollama and then forwards the
 
 Using Ollama means email contents is not sent to an external LLM.
 
-Ollama must be configured to accept HTTP requests from Thunderbird with the following environment variable:
+## Installation
 
-```
-OLLAMA_ORIGINS=moz-extension://*
-```
-
-## Installing the model
-
-This code uses the `llama3` model by default. This needs to be downloaded with the command:
-
-```
-ollama run llama3
-```
-
-## Ollama systemd
-
-This is an example systemd service file that sets the required environment variables to support Thunderbird. This was taken from my WSL instance which includes a lot of WSL specific elements in the `PATH` environment variable:
-
-```
-[Unit]
-Description=Ollama Service
-After=network-online.target
-
-[Service]
-ExecStart=/usr/local/bin/ollama serve
-User=ollama
-Group=ollama
-Restart=always
-RestartSec=3
-Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/Python312/Scripts/:/mnt/c/Program Files/Python312/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Go/bin:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Program Files (x86)/Microsoft SQL Server/160/Tools/Binn/:/mnt/c/Program Files/Microsoft SQL Server/160/Tools/Binn/:/mnt/c/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/:/mnt/c/Program Files/Microsoft SQL Server/160/DTS/Binn/:/Docker/host/bin:/mnt/c/Program Files/PowerShell/7/:/mnt/c/Users/matth/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/matth/.dotnet/tools:/mnt/c/Users/matth/AppData/Local/Programs/Microsoft VS Code/bin:/snap/bin"
-Environment="OLLAMA_ORIGINS=moz-extension://*"
-
-[Install]
-WantedBy=default.target
-```
+1. Windows users install WSL2 using the instructions [here](https://learn.microsoft.com/en-us/windows/wsl/install)
+2. Install Ollama using the instructions [here](https://ollama.com/download/linux)
+3. Create a systemd service using the instructions [here](https://github.com/ollama/ollama/blob/main/docs/linux.md#adding-ollama-as-a-startup-service-recommended)
+4. Modify the systemd service file at `/etc/systemd/system/ollama.service` to include `Environment="OLLAMA_ORIGINS=moz-extension://*"`. This allows Ollama to receive network requests from Thunderbird.
+5. Enable the service with `sudo systemctl enable ollama`
+6. Start the service with `sudo systemctl start ollama`
+7. Install `llama3` with the command `ollama run llama3`
+8. Run `build.sh`
+9. In Thunderbird, open the hamburger menu, click `Add-ons and Themes`, click `Extensions`, click the gears icon, click `Install Add-on From File`
+10. Select the zip file called `thunderbirdollama.zip` created by the `build.sh` script
+11. Set your [Slack webhook URL](https://api.slack.com/messaging/webhooks) in the extension preferences
