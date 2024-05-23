@@ -33,7 +33,7 @@ jobs:
           tag_name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
           release_name: Release ${{ steps.determine_version.outputs.semVer }} Run ${{ github.run_number }} Attempt ${{ github.run_attempt }}
           draft: ${{ github.ref == 'refs/heads/main' && 'false' || 'true' }}
-          name: ${{ github.ref == 'refs/heads/main' && 'false' || 'true' }}
+          name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
