@@ -15,3 +15,5 @@ Using Ollama means email contents is not sent to an external LLM.
 9. In Thunderbird, open the hamburger menu, click `Add-ons and Themes`, click `Extensions`, click the gears icon, click `Install Add-on From File`
 10. Select the zip file called `thunderbirdollama.zip` created by the `build.sh` script
 11. Set your [Slack webhook URL](https://api.slack.com/messaging/webhooks) in the extension preferences
+
+![](extension.png)
