@@ -1,4 +1,4 @@
-A Thunderbird addon that summarises new emails with Ollama and then forwards the summary to Slack.
+A Thunderbird addon that summarises new emails with Ollama and then forwards the summary to Slack (or whatever you code the extension to do).
 
 Using Ollama means email contents is not sent to an external LLM.
 
