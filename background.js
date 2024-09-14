@@ -202,6 +202,9 @@ function getSummary(content) {
                 "Content-Type": "application/json"
             }
         })
+        .then(response => {if (!response.ok) {
+            throw new ResponseError('Bad fetch response', res)
+        }})
         .then(response => response.text())
         .then(result => {
             console.log(result)
