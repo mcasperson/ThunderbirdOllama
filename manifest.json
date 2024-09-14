@@ -20,7 +20,10 @@
     "accountsRead",
     "<all_urls>",
     "webRequest",
-    "storage"
+    "storage",
+    "compose",
+    "compose.save",
+    "compose.send"
   ],
   "background": {
     "page": "background.html"
