@@ -1,5 +1,7 @@
 import * as messageTools from '/modules/messageTools.mjs';
 
+const SUMMARY_PREFIX = "[SUMMARY]"
+
 /*
     We set up an event listener to respond to any new emails received by Thunderbird.
  */
@@ -23,7 +25,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         /*
             If this email is already a summary, ignore ir
          */
-        if (message.subject.startsWith("[SUMMARY]")) {
+        if (message.subject.startsWith(SUMMARY_PREFIX)) {
             continue
         }
 
@@ -74,7 +76,7 @@ async function sendNewEmail(message, summary) {
 
     const composeTab = await compose.beginNew({
         to: emailWithAlias,
-        subject: "[SUMMARY] " + message.subject,
+        subject: SUMMARY_PREFIX + " " + message.subject,
         plainTextBody: summary
     })
 
