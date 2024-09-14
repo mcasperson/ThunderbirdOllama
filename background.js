@@ -2,6 +2,13 @@ import * as messageTools from '/modules/messageTools.mjs';
 
 const SUMMARY_PREFIX = "[SUMMARY]"
 
+class ResponseError extends Error {
+    constructor(message, res) {
+        super(message)
+        this.response = res
+    }
+}
+
 /*
     We set up an event listener to respond to any new emails received by Thunderbird.
  */
@@ -202,9 +209,11 @@ function getSummary(content) {
                 "Content-Type": "application/json"
             }
         })
-        .then(response => {if (!response.ok) {
-            throw new ResponseError('Bad fetch response', res)
-        }})
+        .then(response => {
+            if (!response.ok) {
+                throw new ResponseError('Bad fetch response', res)
+            }
+        })
         .then(response => response.text())
         .then(result => {
             console.log(result)
