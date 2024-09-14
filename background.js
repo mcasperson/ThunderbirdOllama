@@ -70,16 +70,15 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 })
 
 async function sendNewEmail(message, summary) {
-    const email = await browser.storage.sync.get('email')
-    const alias = await browser.storage.sync.get('alias')
+    const getItem = await browser.storage.sync.get()
 
-    const emailSplit = email.split("@")
+    const emailSplit = getItem.email.split("@")
 
     if (emailSplit.length !== 2) {
         return
     }
 
-    const emailWithAlias = emailSplit[0] + "+" + alias + "@" + emailSplit[1]
+    const emailWithAlias = emailSplit[0] + "+" + getItem.alias + "@" + emailSplit[1]
 
     const composeTab = await compose.beginNew({
         to: emailWithAlias,
@@ -91,7 +90,7 @@ async function sendNewEmail(message, summary) {
 }
 
 async function sendToSlack(message, summary) {
-    const gettingItem = await browser.storage.sync.get('url');
+    const gettingItem = await browser.storage.sync.get();
 
     /*
         Send the summary to Slack.
