@@ -21,6 +21,13 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         }
 
         /*
+            If this email is already a summary, ignore ir
+         */
+        if (message.subject.startsWith("[SUMMARY]")) {
+            continue
+        }
+
+        /*
             Get the text content of the email, stripping out HTML and CSS
          */
         const content = getBody(full)
@@ -49,21 +56,46 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 
         console.log(summary)
 
-        const gettingItem = await browser.storage.sync.get('url');
-
-        /*
-            Send the summary to Slack.
-         */
-        await fetch(gettingItem.url,
-            {
-                method: "POST",
-                headers: {"Content-type": "application/json"},
-                body: JSON.stringify({
-                    text: "--------------------------------------------------\n" + message.subject + "\n" + summary
-                })
-            })
+        await sendNewEmail(message, summary)
     }
 })
+
+async function sendNewEmail(message, summary) {
+    const email = await browser.storage.sync.get('email')
+    const alias = await browser.storage.sync.get('alias')
+
+    const emailSplit = email.split("@")
+
+    if (emailSplit.length !== 2) {
+        return
+    }
+
+    const emailWithAlias = emailSplit[0] + "+" + alias + "@" + emailSplit[1]
+
+    const composeTab = await compose.beginNew({
+        to: emailWithAlias,
+        subject: "[SUMMARY] " + message.subject,
+        plainTextBody: summary
+    })
+
+    await compose.sendMessage(composeTab.id)
+}
+
+async function sendToSlack(message, summary) {
+    const gettingItem = await browser.storage.sync.get('url');
+
+    /*
+        Send the summary to Slack.
+     */
+    await fetch(gettingItem.url,
+        {
+            method: "POST",
+            headers: {"Content-type": "application/json"},
+            body: JSON.stringify({
+                text: "--------------------------------------------------\n" + message.subject + "\n" + summary
+            })
+        })
+}
 
 /**
  * Get the text content of the email, stripping out HTML, CSS

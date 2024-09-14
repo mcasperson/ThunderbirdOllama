@@ -1,14 +1,16 @@
 function saveOptions(e) {
     browser.storage.sync.set({
-        url: document.querySelector("#url").value
+        email: document.querySelector("#email").value,
+        alias: document.querySelector("#alias").value,
     });
     e.preventDefault();
 }
 
 function restoreOptions() {
-    var gettingItem = browser.storage.sync.get('url');
+    const gettingItem = browser.storage.sync.get();
     gettingItem.then((res) => {
-        document.querySelector("#url").value = res.url || '';
+        document.querySelector("#email").value = res.email || '';
+        document.querySelector("#alias").value = res.alias || '';
     });
 }
 
