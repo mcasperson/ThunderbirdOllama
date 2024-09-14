@@ -213,6 +213,7 @@ function getSummary(content) {
             if (!response.ok) {
                 throw new ResponseError('Bad fetch response', response)
             }
+            return response
         })
         .then(response => response.text())
         .then(result => {
