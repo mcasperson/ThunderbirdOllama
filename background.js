@@ -80,13 +80,13 @@ async function sendNewEmail(message, summary) {
 
     const emailWithAlias = emailSplit[0] + "+" + getItem.alias + "@" + emailSplit[1]
 
-    const composeTab = await compose.beginNew({
+    const composeTab = await browser.compose.beginNew({
         to: emailWithAlias,
         subject: SUMMARY_PREFIX + " " + message.subject,
         plainTextBody: summary
     })
 
-    await compose.sendMessage(composeTab.id)
+    await browser.compose.sendMessage(composeTab.id)
 }
 
 async function sendToSlack(message, summary) {
