@@ -1,5 +1,14 @@
 import * as messageTools from '/modules/messageTools.mjs';
 
+const SUMMARY_PREFIX = "[SUMMARY]"
+
+class ResponseError extends Error {
+    constructor(message, res) {
+        super(message)
+        this.response = res
+    }
+}
+
 /*
     We set up an event listener to respond to any new emails received by Thunderbird.
  */
@@ -17,6 +26,13 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
          */
         if (message.date < new Date() - 1000 * 60 * 60 * 24) {
             console.log("Skipping email " + message.subject + " received more than 24 hours ago")
+            continue
+        }
+
+        /*
+            If this email is already a summary, ignore ir
+         */
+        if (message.subject.startsWith(SUMMARY_PREFIX)) {
             continue
         }
 
@@ -49,21 +65,45 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 
         console.log(summary)
 
-        const gettingItem = await browser.storage.sync.get('url');
-
-        /*
-            Send the summary to Slack.
-         */
-        await fetch(gettingItem.url,
-            {
-                method: "POST",
-                headers: {"Content-type": "application/json"},
-                body: JSON.stringify({
-                    text: "--------------------------------------------------\n" + message.subject + "\n" + summary
-                })
-            })
+        await sendNewEmail(message, summary)
     }
 })
+
+async function sendNewEmail(message, summary) {
+    const getItem = await browser.storage.sync.get()
+
+    const emailSplit = getItem.email.split("@")
+
+    if (emailSplit.length !== 2) {
+        return
+    }
+
+    const emailWithAlias = emailSplit[0] + "+" + getItem.alias + "@" + emailSplit[1]
+
+    const composeTab = await browser.compose.beginNew({
+        to: emailWithAlias,
+        subject: SUMMARY_PREFIX + " " + message.subject,
+        plainTextBody: summary
+    })
+
+    await browser.compose.sendMessage(composeTab.id)
+}
+
+async function sendToSlack(message, summary) {
+    const gettingItem = await browser.storage.sync.get();
+
+    /*
+        Send the summary to Slack.
+     */
+    await fetch(gettingItem.url,
+        {
+            method: "POST",
+            headers: {"Content-type": "application/json"},
+            body: JSON.stringify({
+                text: "--------------------------------------------------\n" + message.subject + "\n" + summary
+            })
+        })
+}
 
 /**
  * Get the text content of the email, stripping out HTML, CSS
@@ -114,8 +154,7 @@ function removeCSSFromString(inputString) {
     // Regular expression to match CSS style declarations
     const cssRegex = /.*?{[^}]*}/g;
     // Remove CSS style declarations from the string
-    const outputString = inputString.replace(cssRegex, '');
-    return outputString;
+    return inputString.replace(cssRegex, '');
 }
 
 /**
@@ -127,8 +166,7 @@ function removeCSSCommentsFromString(inputString) {
     // Regular expression to match CSS style declarations
     const cssRegex = /\/\*.*?\*\//g;
     // Remove CSS style declarations from the string
-    const outputString = inputString.replace(cssRegex, '');
-    return outputString;
+    return inputString.replace(cssRegex, '');
 }
 
 /**
@@ -156,7 +194,7 @@ function getSummary(content) {
             method: "POST",
             body: JSON.stringify(
                 {
-                    "model": "llama3",
+                    "model": "llama3.1",
                     "prompt": "[INST] You are a helpful code assistant. "
                         + "Provide a two paragraph summary of the following email. "
                         + "The summary must highlight the important points, dates, people, questions, and action items. "
@@ -167,6 +205,12 @@ function getSummary(content) {
             headers: {
                 "Content-Type": "application/json"
             }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new ResponseError('Bad fetch response', response)
+            }
+            return response
         })
         .then(response => response.text())
         .then(result => {
