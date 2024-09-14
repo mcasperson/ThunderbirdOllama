@@ -197,7 +197,7 @@ function getSummary(content) {
             method: "POST",
             body: JSON.stringify(
                 {
-                    "model": "llama3",
+                    "model": "llama3.1",
                     "prompt": "[INST] You are a helpful code assistant. "
                         + "Provide a two paragraph summary of the following email. "
                         + "The summary must highlight the important points, dates, people, questions, and action items. "
@@ -211,7 +211,7 @@ function getSummary(content) {
         })
         .then(response => {
             if (!response.ok) {
-                throw new ResponseError('Bad fetch response', res)
+                throw new ResponseError('Bad fetch response', response)
             }
         })
         .then(response => response.text())

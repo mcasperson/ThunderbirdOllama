@@ -10,7 +10,7 @@ Using Ollama means email contents is not sent to an external LLM.
 4. Modify the systemd service file at `/etc/systemd/system/ollama.service` to include `Environment="OLLAMA_ORIGINS=moz-extension://*"`. This allows Ollama to receive network requests from Thunderbird.
 5. Enable the service with `sudo systemctl enable ollama`
 6. Start the service with `sudo systemctl start ollama`
-7. Install `llama3` with the command `ollama run llama3`
+7. Install `llama3` with the command `ollama run llama3.1`
 8. Run `build.sh`
 9. In Thunderbird, open the hamburger menu, click `Add-ons and Themes`, click `Extensions`, click the gears icon, click `Install Add-on From File`
 10. Select the zip file called `thunderbirdollama.zip` created by the `build.sh` script
