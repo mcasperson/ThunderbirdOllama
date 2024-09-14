@@ -155,8 +155,7 @@ function removeCSSFromString(inputString) {
     // Regular expression to match CSS style declarations
     const cssRegex = /.*?{[^}]*}/g;
     // Remove CSS style declarations from the string
-    const outputString = inputString.replace(cssRegex, '');
-    return outputString;
+    return inputString.replace(cssRegex, '');
 }
 
 /**
@@ -168,8 +167,7 @@ function removeCSSCommentsFromString(inputString) {
     // Regular expression to match CSS style declarations
     const cssRegex = /\/\*.*?\*\//g;
     // Remove CSS style declarations from the string
-    const outputString = inputString.replace(cssRegex, '');
-    return outputString;
+    return inputString.replace(cssRegex, '');
 }
 
 /**
