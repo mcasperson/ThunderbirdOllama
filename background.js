@@ -72,13 +72,11 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 async function sendNewEmail(message, summary) {
     const getItem = await browser.storage.sync.get()
 
-    const emailSplit = getItem.email.split("@")
-
-    if (emailSplit.length !== 2) {
+    if (getItem.email.trim().length === 0) {
         return
     }
 
-    const emailWithAlias = emailSplit[0] + "+" + getItem.alias + "@" + emailSplit[1]
+    const emailWithAlias = getToAddress(getItem.email, getItem.alias)
 
     const composeTab = await browser.compose.beginNew({
         to: emailWithAlias,
@@ -89,20 +87,18 @@ async function sendNewEmail(message, summary) {
     await browser.compose.sendMessage(composeTab.id)
 }
 
-async function sendToSlack(message, summary) {
-    const gettingItem = await browser.storage.sync.get();
+function getToAddress(email, alias) {
+    if (alias.trim().length === 0) {
+        return email
+    }
 
-    /*
-        Send the summary to Slack.
-     */
-    await fetch(gettingItem.url,
-        {
-            method: "POST",
-            headers: {"Content-type": "application/json"},
-            body: JSON.stringify({
-                text: "--------------------------------------------------\n" + message.subject + "\n" + summary
-            })
-        })
+    const emailSplit = email.split("@")
+
+    if (emailSplit.length !== 2) {
+        return email
+    }
+
+    return emailSplit[0] + "+" + alias + "@" + emailSplit[1]
 }
 
 /**
