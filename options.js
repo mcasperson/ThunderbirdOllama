@@ -1,5 +1,5 @@
 function saveOptions(e) {
-    browser.storage.sync.set({
+    browser.storage.local.set({
         email: document.querySelector("#email").value,
         alias: document.querySelector("#alias").value,
     });
@@ -7,7 +7,7 @@ function saveOptions(e) {
 }
 
 function restoreOptions() {
-    const gettingItem = browser.storage.sync.get();
+    const gettingItem = browser.storage.local.get();
     gettingItem.then((res) => {
         document.querySelector("#email").value = res.email || '';
         document.querySelector("#alias").value = res.alias || '';

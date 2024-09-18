@@ -39,7 +39,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         /*
             Get the text content of the email, stripping out HTML and CSS
          */
-        const content = getBody(full)
+        const content = await getBody(message)
 
         /*
             Call Ollama to generate a summary of the email. The service may be (re)starting,
@@ -70,7 +70,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 })
 
 async function sendNewEmail(message, summary) {
-    const getItem = await browser.storage.sync.get()
+    const getItem = await browser.storage.local.get()
 
     if (getItem.email.trim().length === 0) {
         return
@@ -106,22 +106,15 @@ function getToAddress(email, alias) {
  * @param message The email object
  * @returns {string} The text content of the email
  */
-function getBody(message) {
-    let body = ""
-    if (message.body) {
-        let text = convertToPlain(message.body)
-        text = removeCSSFromString(text)
-        text = removeCSSCommentsFromString(text)
-        text = removeWhiteSpace(text)
-        body += text
-    }
-    if (message.parts) {
-        message.parts.forEach(part => {
-            body += getBody(part)
-        })
+async function getBody(message) {
+    const textParts = await messenger.messages.listInlineTextParts(message.id)
+    const plainTextParts = []
+    for (const part of textParts) {
+        const plainText = await browser.messengerUtilities.convertToPlainText(part.content)
+        plainTextParts.push(plainText)
     }
 
-    return body
+   return plainTextParts.join("\n")
 }
 
 /**
