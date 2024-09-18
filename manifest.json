@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Ollama Summarizer",
   "description": "Generate email summaries with Ollama",
-  "version": "1.0",
+  "version": "1.1",
   "author": "Matthew Casperson",
   "browser_specific_settings": {
     "gecko": {
