@@ -11,9 +11,9 @@
     }
   },
   "icons": {
-    "64": "images/internet.png",
-    "32": "images/internet-32px.png",
-    "16": "images/internet-16px.png"
+    "64": "images/llama.png",
+    "32": "images/llama-32px.png",
+    "16": "images/llama-16px.png"
   },
   "permissions": [
     "messagesRead",
