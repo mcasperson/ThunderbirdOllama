@@ -24,12 +24,6 @@ Run this command to allow Thunderbird to access Ollama:
 launchctl setenv OLLAMA_ORIGINS "moz-extension://*"
 ```
 
-## Example
+## Extension
 
-This is what the extension looks like:
-
-![](extension.png)
-
-This is the kind of summary you can expect:
-
-![](summary.png)
+Get the extension from the [Thunderbird AddOns](https://addons.thunderbird.net/en-US/thunderbird/addon/ollama-summarizer/) website.
