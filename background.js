@@ -175,11 +175,19 @@ function getSummary(content) {
             method: "POST",
             body: JSON.stringify(
                 {
-                    "model": "llama3.1",
-                    "prompt": "[INST] You are a helpful code assistant. "
-                        + "Provide a two paragraph summary of the following email. "
-                        + "The summary must highlight the important points, dates, people, questions, and action items. "
-                        + "The email is:\n" + content + "\n[/INST]",
+                    "model": "llama3.2",
+                    "prompt": "<|begin_of_text|>" +
+                        "<|start_header_id|>system<|end_header_id|>" +
+                        "You are an expert in reading and summarizing emails." +
+                        "<|eot_id|>" +
+                        "<|start_header_id|>system<|end_header_id|>" +
+                        "The email content is: " + content +
+                        "<|eot_id|>" +
+                        "<|start_header_id|>user<|end_header_id|>" +
+                        "Provide a two paragraph summary of the email. " +
+                        "The summary must highlight the important points, dates, people, questions, and action items." +
+                        "<|eot_id|>" +
+                        "<|start_header_id|>assistant<|end_header_id|>",
                     "stream": false
                 }
             ),
