@@ -1,6 +1,14 @@
 import * as messageTools from '/modules/messageTools.mjs';
 
 const SUMMARY_PREFIX = "[SUMMARY]"
+/**
+ * Ollama has a default context window of 2048 tokens. Tokens are approximately 4 characters each.
+ * Any content over this limit is ignores.
+ * Typically, the content we are interested in is the start of the email, with the trailing content
+ * being quoted replies or signatures.
+ * So, we must trim the email to the first 2000 characters.
+ */
+const MAX_CONTENT_LENGTH = 2000 * 4
 
 class ResponseError extends Error {
     constructor(message, res) {
@@ -37,7 +45,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         /*
             Get the text content of the email, stripping out HTML and CSS
          */
-        const content = await getBody(message)
+        const content = await getBody(message).substring(0, MAX_CONTENT_LENGTH)
 
         /*
             Call Ollama to generate a summary of the email. The service may be (re)starting,
