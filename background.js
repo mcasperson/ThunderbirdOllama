@@ -118,52 +118,6 @@ async function getBody(message) {
 }
 
 /**
- * Convert HTML to plain text
- * @param html The input HTML
- * @returns {string} The text content
- */
-function convertToPlain(html){
-    return html.replace(/<[^>]*>/g, '');
-}
-
-/**
- * Strip out CSS
- * @param inputString The input text
- * @returns {string} The text content without CSS
- */
-function removeCSSFromString(inputString) {
-    // Regular expression to match CSS style declarations
-    const cssRegex = /.*?{[^}]*}/g;
-    // Remove CSS style declarations from the string
-    return inputString.replace(cssRegex, '');
-}
-
-/**
- * Remove CSS comments from the string
- * @param inputString The input string
- * @returns {string} The text content without comments
- */
-function removeCSSCommentsFromString(inputString) {
-    // Regular expression to match CSS style declarations
-    const cssRegex = /\/\*.*?\*\//g;
-    // Remove CSS style declarations from the string
-    return inputString.replace(cssRegex, '');
-}
-
-/**
- * Remove unnecessary white space from the string
- * @param message The input string
- * @returns {string} The string without unnecessary white space
- */
-function removeWhiteSpace(message) {
-    return message
-        .split("\n")
-        .filter(line => line.trim() !== "")
-        .join("\n")
-        .replaceAll("  ", " ")
-}
-
-/**
  * Call Ollama to generate a summary of the email
  * @param content The plain text context of the email
  * @returns {Promise<any>} The email summary
