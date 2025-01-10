@@ -19,8 +19,6 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         We use the messageTools.iterateMessagePages function to iterate over all the messages in the folder.
      */
     for await (let message of messageTools.iterateMessagePages(messages)) {
-        const full = await messenger.messages.getFull(message.id);
-
         /*
             If for some reason the email was received over a day ago, ignore it
          */
