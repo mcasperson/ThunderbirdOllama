@@ -45,7 +45,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         /*
             Get the text content of the email, stripping out HTML and CSS
          */
-        const content = await getBody(message).substring(0, MAX_CONTENT_LENGTH)
+        const content = getBody(message).substring(0, MAX_CONTENT_LENGTH)
 
         /*
             Call Ollama to generate a summary of the email. The service may be (re)starting,
