@@ -88,7 +88,7 @@ async function getModel() {
 
 async function getContextLength() {
     return await browser.storage.local.get()
-        .then(getItem => getItem.contextwindow?.trim() || "2048")
+        .then(getItem => getItem.contextwindow?.trim() || DEFAULT_CONTEXT_WINDOW)
         .then(contextWindow => parseInt(contextWindow))
         .then(contextWindow => isNaN(contextWindow) || contextWindow < 0
             ? DEFAULT_CONTEXT_WINDOW
