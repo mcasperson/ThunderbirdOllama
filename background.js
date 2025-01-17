@@ -1,14 +1,7 @@
 import * as messageTools from '/modules/messageTools.mjs';
 
 const SUMMARY_PREFIX = "[SUMMARY]"
-/**
- * Ollama has a default context window of 2048 tokens. Tokens are approximately 4 characters each.
- * Any content over this limit is ignores.
- * Typically, the content we are interested in is the start of the email, with the trailing content
- * being quoted replies or signatures.
- * So, we must trim the email to the first 2000 characters.
- */
-const MAX_CONTENT_LENGTH = 2000 * 4
+const DEFAULT_CONTEXT_WINDOW = 2048
 
 class ResponseError extends Error {
     constructor(message, res) {
@@ -22,6 +15,8 @@ class ResponseError extends Error {
  */
 messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
     console.log("New mail received")
+
+    const contextLength = await getContextLength()
 
     /*
         We use the messageTools.iterateMessagePages function to iterate over all the messages in the folder.
@@ -45,7 +40,8 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         /*
             Get the text content of the email, stripping out HTML and CSS
          */
-        const content = (await getBody(message)).substring(0, MAX_CONTENT_LENGTH)
+        const content = await getBody(message)
+            .then(body => body.substring(0, contextLength))
 
         /*
             Call Ollama to generate a summary of the email. The service may be (re)starting,
@@ -75,14 +71,42 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
     }
 })
 
-async function sendNewEmail(message, summary) {
-    const getItem = await browser.storage.local.get()
+async function getEmailAddress() {
+    return await browser.storage.local.get()
+        .then(getItem => getItem.email?.trim() || "")
+}
 
-    if (getItem.email.trim().length === 0) {
+async function getEmailAlias() {
+    return await browser.storage.local.get()
+        .then(getItem => getItem.alias?.trim() || "")
+}
+
+async function getModel() {
+    return await browser.storage.local.get()
+        .then(getItem => getItem.model?.trim() || "llama3.2")
+}
+
+async function getContextLength() {
+    return await browser.storage.local.get()
+        .then(getItem => getItem.contextwindow?.trim() || "2048")
+        .then(contextWindow => parseInt(contextWindow))
+        .then(contextWindow => isNaN(contextWindow) || contextWindow < 0
+            ? DEFAULT_CONTEXT_WINDOW
+            : contextWindow)
+        /*
+            Context window measures the number of tokens. There are approx 4 chars per token.
+            To give us a buffer and allow for the prompt template we subtract 256 tokens and
+            multiply by 4 to get the number of characters that can be passed into the model.
+         */
+        .then(contextWindow => (contextWindow - 256) * 4)
+}
+
+async function sendNewEmail(message, summary) {
+    if (getEmailAddress().length === 0) {
         return
     }
 
-    const emailWithAlias = getToAddress(getItem.email, getItem.alias)
+    const emailWithAlias = getToAddress(getEmailAddress(), getEmailAlias())
 
     const composeTab = await browser.compose.beginNew({
         to: emailWithAlias,
@@ -123,6 +147,45 @@ async function getBody(message) {
    return plainTextParts.join("\n")
 }
 
+function getPrompt(content) {
+    const model = getModel()
+
+    if (model.startsWith("phi")) {
+        return getPhiPrompt(content)
+    }
+
+    return getLlamaPrompt(content)
+}
+
+function getPhiPrompt(content) {
+    return "<|im_start|>system<|im_sep|>" +
+        "You are an expert in reading and summarizing emails." +
+        "<|im_end|>" +
+        "<|im_start|>system<|im_sep|>" +
+        "The email content is: " + content +
+        "<|im_end|>" +
+        "<|im_start|>user<|im_sep|>" +
+        "Provide a two paragraph summary of the email. " +
+        "The summary must highlight the important points, dates, people, questions, and action items." +
+        "<|im_end|>" +
+        "<|im_start|>assistant<|im_sep|>"
+}
+
+function getLlamaPrompt(content) {
+    return "<|begin_of_text|>" +
+        "<|start_header_id|>system<|end_header_id|>" +
+        "You are an expert in reading and summarizing emails." +
+        "<|eot_id|>" +
+        "<|start_header_id|>system<|end_header_id|>" +
+        "The email content is: " + content +
+        "<|eot_id|>" +
+        "<|start_header_id|>user<|end_header_id|>" +
+        "Provide a two paragraph summary of the email. " +
+        "The summary must highlight the important points, dates, people, questions, and action items." +
+        "<|eot_id|>" +
+        "<|start_header_id|>assistant<|end_header_id|>"
+}
+
 /**
  * Call Ollama to generate a summary of the email
  * @param content The plain text context of the email
@@ -135,19 +198,8 @@ function getSummary(content) {
             method: "POST",
             body: JSON.stringify(
                 {
-                    "model": "llama3.2",
-                    "prompt": "<|begin_of_text|>" +
-                        "<|start_header_id|>system<|end_header_id|>" +
-                        "You are an expert in reading and summarizing emails." +
-                        "<|eot_id|>" +
-                        "<|start_header_id|>system<|end_header_id|>" +
-                        "The email content is: " + content +
-                        "<|eot_id|>" +
-                        "<|start_header_id|>user<|end_header_id|>" +
-                        "Provide a two paragraph summary of the email. " +
-                        "The summary must highlight the important points, dates, people, questions, and action items." +
-                        "<|eot_id|>" +
-                        "<|start_header_id|>assistant<|end_header_id|>",
+                    "model": getModel(),
+                    "prompt": getPrompt(content),
                     "stream": false
                 }
             ),

@@ -17,6 +17,19 @@
     <p>This is an optional alias added to the email address to make it easier to filter summary emails.</p>
     <p>For example, if the email address is test@example.org, and the alias is summary, summary emails are sent to test+summary@example.org.</p>
     <br/>
+    <label>Model</label>
+    <select id="model">
+        <option value="llama3.2">llama3.2</option>
+        <option value="phi4">phi4</option>
+    </select>
+    <p>This is the model used to summarize the email. These models must be
+        pulled by Ollama with the command "ollama pull &lt;modelname&gt;".</p>
+    <br/>
+    <label>Context Window</label>
+    <input type="text" id="contextwindow">
+    <p>This is the size of the context window. Larger sizes allow larger
+        emails to be summarized, but consume more memory and take longer.</p>
+    <br/>
     <button type="submit">Save</button>
 </form>
 <script src="options.js"></script>
