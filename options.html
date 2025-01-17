@@ -4,31 +4,47 @@
 
 <head>
     <meta charset="utf-8">
+    <style>
+        label {
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 <form>
     <label>Email</label>
-    <input type="text" id="email">
+    <br/>
+    <input type="text" id="email" style="width: 100%">
     <p>This is the email address that summary emails will be sent to.</p>
     <br/>
     <label>Alias</label>
+    <br/>
     <input type="text" id="alias">
     <p>This is an optional alias added to the email address to make it easier to filter summary emails.</p>
     <p>For example, if the email address is test@example.org, and the alias is summary, summary emails are sent to test+summary@example.org.</p>
     <br/>
-    <label>Model</label>
+    <label for="model">Model</label>
+    <br/>
     <select id="model">
-        <option value="llama3.1">llama3.2</option>
+        <option value="llama3.1">llama3.1</option>
         <option value="llama3.2">llama3.2</option>
-        <option value="llama3.3">llama3.2</option>
+        <option value="llama3.3">llama3.3</option>
         <option value="phi4">phi4</option>
     </select>
     <p>This is the model used to summarize the email. These models must be
         pulled by Ollama with the command "ollama pull &lt;modelname&gt;".</p>
     <br/>
     <label>Context Window</label>
-    <input type="text" id="contextwindow">
+    <br/>
+    <select id="contextwindow">
+        <option value="2048">2048</option>
+        <option value="4096">4096</option>
+        <option value="8192">8192</option>
+        <option value="16384">16384</option>
+        <option value="32768">32768</option>
+        <option value="131072">131072</option>
+    </select>
     <p>This is the size of the context window. Larger sizes allow larger
         emails to be summarized, but consume more memory and take longer.</p>
     <br/>
