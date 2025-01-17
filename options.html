@@ -8,6 +8,11 @@
         label {
             font-weight: bold;
         }
+
+        textarea {
+            width: 75%;
+            height: 100px;
+        }
     </style>
 </head>
 
@@ -15,7 +20,7 @@
 <form>
     <label>Email</label>
     <br/>
-    <input type="text" id="email" style="width: 100%">
+    <input type="text" id="email" style="width: 75%">
     <p>This is the email address that summary emails will be sent to.</p>
     <br/>
     <label>Alias</label>
@@ -48,6 +53,10 @@
     <p>This is the size of the context window. Larger sizes allow larger
         emails to be summarized, but consume more memory and take longer.</p>
     <br/>
+    <label for="instructions">Instructions</label>
+    <br/>
+    <textarea type="text" id="instructions"></textarea>
+    <p>The custom instructions to be used for summarization.</p>
     <button type="submit">Save</button>
 </form>
 <script src="options.js"></script>

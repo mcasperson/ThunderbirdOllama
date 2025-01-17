@@ -86,6 +86,12 @@ async function getModel() {
         .then(getItem => getItem.model?.trim() || "llama3.2")
 }
 
+async function getInstructions() {
+    return await browser.storage.local.get()
+        .then(getItem => getItem.instructions?.trim() || "Provide a two paragraph summary of the email. " +
+            "The summary must highlight the important points, dates, people, questions, and action items.")
+}
+
 async function getContextLength() {
     return await browser.storage.local.get()
         .then(getItem => getItem.contextwindow?.trim() || DEFAULT_CONTEXT_WINDOW)
@@ -165,8 +171,7 @@ function getPhiPrompt(content) {
         "The email content is: " + content +
         "<|im_end|>" +
         "<|im_start|>user<|im_sep|>" +
-        "Provide a two paragraph summary of the email. " +
-        "The summary must highlight the important points, dates, people, questions, and action items." +
+        getInstructions() +
         "<|im_end|>" +
         "<|im_start|>assistant<|im_sep|>"
 }
@@ -180,8 +185,7 @@ function getLlamaPrompt(content) {
         "The email content is: " + content +
         "<|eot_id|>" +
         "<|start_header_id|>user<|end_header_id|>" +
-        "Provide a two paragraph summary of the email. " +
-        "The summary must highlight the important points, dates, people, questions, and action items." +
+        getInstructions() +
         "<|eot_id|>" +
         "<|start_header_id|>assistant<|end_header_id|>"
 }
