@@ -108,11 +108,14 @@ async function getContextLength() {
 }
 
 async function sendNewEmail(message, summary) {
-    if (getEmailAddress().length === 0) {
+    const email = await getEmailAddress()
+    const alias = await getEmailAlias()
+
+    if (email.length === 0) {
         return
     }
 
-    const emailWithAlias = getToAddress(getEmailAddress(), getEmailAlias())
+    const emailWithAlias = getToAddress(email, alias)
 
     const composeTab = await browser.compose.beginNew({
         to: emailWithAlias,
@@ -153,17 +156,17 @@ async function getBody(message) {
    return plainTextParts.join("\n")
 }
 
-function getPrompt(content) {
-    const model = getModel()
+async function getPrompt(content) {
+    const model = await getModel()
 
     if (model.startsWith("phi")) {
-        return getPhiPrompt(content)
+        return await getPhiPrompt(content)
     }
 
-    return getLlamaPrompt(content)
+    return await getLlamaPrompt(content)
 }
 
-function getPhiPrompt(content) {
+async function getPhiPrompt(content) {
     return "<|im_start|>system<|im_sep|>" +
         "You are an expert in reading and summarizing emails." +
         "<|im_end|>" +
@@ -171,12 +174,12 @@ function getPhiPrompt(content) {
         "The email content is: " + content +
         "<|im_end|>" +
         "<|im_start|>user<|im_sep|>" +
-        getInstructions() +
+        await getInstructions() +
         "<|im_end|>" +
         "<|im_start|>assistant<|im_sep|>"
 }
 
-function getLlamaPrompt(content) {
+async function getLlamaPrompt(content) {
     return "<|begin_of_text|>" +
         "<|start_header_id|>system<|end_header_id|>" +
         "You are an expert in reading and summarizing emails." +
@@ -185,7 +188,7 @@ function getLlamaPrompt(content) {
         "The email content is: " + content +
         "<|eot_id|>" +
         "<|start_header_id|>user<|end_header_id|>" +
-        getInstructions() +
+        await getInstructions() +
         "<|eot_id|>" +
         "<|start_header_id|>assistant<|end_header_id|>"
 }
@@ -195,15 +198,18 @@ function getLlamaPrompt(content) {
  * @param content The plain text context of the email
  * @returns {Promise<any>} The email summary
  */
-function getSummary(content) {
+async function getSummary(content) {
+    const model = await getModel()
+    const prompt = await getPrompt(content)
+
     // Need to set the OLLAMA_ORIGINS=moz-extension://* environment variable for Ollama
     return fetch("http://localhost:11434/api/generate",
         {
             method: "POST",
             body: JSON.stringify(
                 {
-                    "model": getModel(),
-                    "prompt": getPrompt(content),
+                    "model": model,
+                    "prompt": prompt,
                     "stream": false
                 }
             ),
