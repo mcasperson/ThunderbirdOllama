@@ -93,8 +93,8 @@ async function getInstructions() {
 }
 
 async function getContextLength() {
-    return await browser.storage.local.get()
-        .then(getItem => getItem.contextwindow?.trim() || DEFAULT_CONTEXT_WINDOW)
+    return await browser.storage.local.get({contextwindow: DEFAULT_CONTEXT_WINDOW})
+        .then(data => data.contextwindow.trim())
         .then(contextWindow => parseInt(contextWindow))
         .then(contextWindow => isNaN(contextWindow) || contextWindow < 0
             ? DEFAULT_CONTEXT_WINDOW
