@@ -72,18 +72,18 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 })
 
 async function getEmailAddress() {
-    return await browser.storage.local.get()
-        .then(getItem => getItem.email?.trim() || "")
+    let { email } = await browser.storage.local.get({ email : "" });
+    return email.trim();
 }
 
 async function getEmailAlias() {
-    return await browser.storage.local.get()
-        .then(getItem => getItem.alias?.trim() || "")
+    let { alias } = await browser.storage.local.get({ alias : "" });
+    return alias.trim();
 }
 
 async function getModel() {
-    return await browser.storage.local.get()
-        .then(getItem => getItem.model?.trim() || "llama3.2")
+    let { model } = await browser.storage.local.get({ model : "" });
+    return model.trim();
 }
 
 async function getInstructions() {
