@@ -86,6 +86,11 @@ async function getModel() {
     return model.trim();
 }
 
+async function getContextWindow() {
+    let { contextwindow } = await browser.storage.local.get({ contextwindow : "" });
+    return contextwindow.trim();
+}
+
 async function getInstructions() {
     return await browser.storage.local.get()
         .then(getItem => getItem.instructions?.trim() || "Provide a two paragraph summary of the email. " +
@@ -218,6 +223,7 @@ async function getQwenPrompt(content) {
 async function getSummary(content) {
     const model = await getModel()
     const prompt = await getPrompt(content)
+    const contextWindow = await getContextWindow().then(contextWindow => contextWindow || DEFAULT_CONTEXT_WINDOW)
 
     // Need to set the OLLAMA_ORIGINS=moz-extension://* environment variable for Ollama
     return fetch("http://localhost:11434/api/generate",
@@ -227,7 +233,10 @@ async function getSummary(content) {
                 {
                     "model": model,
                     "prompt": prompt,
-                    "stream": false
+                    "stream": false,
+                    "options": {
+                        "num_ctx": contextWindow
+                    }
                 }
             ),
             headers: {
