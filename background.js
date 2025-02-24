@@ -163,6 +163,10 @@ async function getPrompt(content) {
         return await getPhiPrompt(content)
     }
 
+    if (model.startsWith("qwen")) {
+        return await getQwenPrompt(content)
+    }
+
     return await getLlamaPrompt(content)
 }
 
@@ -191,6 +195,19 @@ async function getLlamaPrompt(content) {
         await getInstructions() +
         "<|eot_id|>" +
         "<|start_header_id|>assistant<|end_header_id|>"
+}
+
+async function getQwenPrompt(content) {
+    return "<|im_start|>system\n" +
+        "You are an expert in reading and summarizing emails." +
+        "<|im_end|>" +
+        "<|im_start|>system\n" +
+        "The email content is: " + content +
+        "<|im_end|>" +
+        "<|im_start|>user\n" +
+        await getInstructions() +
+        "<|im_end|>" +
+        "<|im_start|>assistant"
 }
 
 /**
