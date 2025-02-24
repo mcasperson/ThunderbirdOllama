@@ -86,11 +86,6 @@ async function getModel() {
     return model.trim();
 }
 
-async function getContextWindow() {
-    let { contextwindow } = await browser.storage.local.get({ contextwindow : "" });
-    return contextwindow.trim();
-}
-
 async function getInstructions() {
     return await browser.storage.local.get()
         .then(getItem => getItem.instructions?.trim() || "Provide a two paragraph summary of the email. " +
@@ -98,7 +93,7 @@ async function getInstructions() {
 }
 
 async function getContextLength() {
-    return await browser.storage.local.get({contextwindow: DEFAULT_CONTEXT_WINDOW})
+    return await browser.storage.local.get({contextwindow: DEFAULT_CONTEXT_WINDOW.toString()})
         .then(data => data.contextwindow.trim())
         .then(contextWindow => parseInt(contextWindow))
         .then(contextWindow => isNaN(contextWindow) || contextWindow < 0
@@ -235,7 +230,7 @@ async function getSummary(content) {
                     "prompt": prompt,
                     "stream": false,
                     "options": {
-                        "num_ctx": contextWindow
+                        "num_ctx": getContextLength()
                     }
                 }
             ),
