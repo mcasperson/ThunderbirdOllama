@@ -218,6 +218,7 @@ async function getQwenPrompt(content) {
 async function getSummary(content) {
     const model = await getModel()
     const prompt = await getPrompt(content)
+    const contextLength = await getContextLength()
 
     // Need to set the OLLAMA_ORIGINS=moz-extension://* environment variable for Ollama
     return fetch("http://localhost:11434/api/generate",
@@ -229,7 +230,7 @@ async function getSummary(content) {
                     "prompt": prompt,
                     "stream": false,
                     "options": {
-                        "num_ctx": getContextLength()
+                        "num_ctx": contextLength
                     }
                 }
             ),
