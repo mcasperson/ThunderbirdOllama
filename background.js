@@ -210,6 +210,19 @@ async function getQwenPrompt(content) {
         "<|im_start|>assistant"
 }
 
+function removeThinkingTags(text) {
+    if (!text) {
+        return text
+    }
+
+    const match = /<thinking>(.*?)<\/thinking>/g.exec(text.trim())
+    if (match) {
+        return match[1]
+    }
+
+    return text
+}
+
 /**
  * Call Ollama to generate a summary of the email
  * @param content The plain text context of the email
@@ -245,6 +258,7 @@ async function getSummary(content) {
             return response
         })
         .then(response => response.text())
+        .then(text => removeThinkingTags(text))
         .then(result => {
             console.log(result)
             return JSON.parse(result)
