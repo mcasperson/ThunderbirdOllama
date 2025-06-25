@@ -65,9 +65,11 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
             continue
         }
 
-        console.log(summary)
+        const processedSummary = await processResponse(summary)
 
-        await sendNewEmail(message, summary)
+        console.log(processedSummary)
+
+        await sendNewEmail(message, processedSummary)
     }
 })
 
@@ -168,6 +170,16 @@ async function getPrompt(content) {
     }
 
     return await getLlamaPrompt(content)
+}
+
+async function processResponse(response) {
+    const model = await getModel()
+
+    if (model.startsWith("qwen")) {
+        return response.replace(/<think>.*?<\/think>/gs, '').trim()
+    }
+
+    return response
 }
 
 async function getPhiPrompt(content) {
