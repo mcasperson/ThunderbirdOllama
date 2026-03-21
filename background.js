@@ -25,7 +25,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         /*
             If for some reason the email was received over a day ago, ignore it
          */
-        if (message.date < new Date() - 1000 * 60 * 60 * 24) {
+        if (isOlderThan24Hours(message)) {
             console.log("Skipping email " + message.subject + " received more than 24 hours ago")
             continue
         }
@@ -33,7 +33,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         /*
             If this email is already a summary, ignore ir
          */
-        if (message.subject.startsWith(SUMMARY_PREFIX)) {
+        if (isSummaryEmail(message)) {
             continue
         }
 
@@ -72,6 +72,14 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
         await sendNewEmail(message, processedSummary)
     }
 })
+
+function isOlderThan24Hours(message) {
+    return message.date < new Date() - 1000 * 60 * 60 * 24
+}
+
+function isSummaryEmail(message) {
+    return message.subject.startsWith(SUMMARY_PREFIX)
+}
 
 async function getEmailAddress() {
     let { email } = await browser.storage.local.get({ email : "" });
