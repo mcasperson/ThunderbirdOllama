@@ -1,3 +1,5 @@
+import {getDefaultName, getDefaultSummaryInstructions, getNamedActionRequiredInstructions} from "./defaults.js";
+
 function saveOptions(e) {
     browser.storage.local.set({
         email: document.querySelector("#email").value,
@@ -5,6 +7,8 @@ function saveOptions(e) {
         model: document.querySelector("#model").value,
         contextwindow: document.querySelector("#contextwindow").value,
         instructions: document.querySelector("#instructions").value,
+        name: document.querySelector("#name").value,
+        actionInstructions: document.querySelector("#actionInstructions").value,
     });
     e.preventDefault();
 }
@@ -16,7 +20,9 @@ function restoreOptions() {
         document.querySelector("#alias").value = res.alias || '';
         document.querySelector("#model").value = res.model || 'llama3.2';
         document.querySelector("#contextwindow").value = res.contextwindow || '2048';
-        document.querySelector("#instructions").value = res.instructions || 'Provide a two paragraph summary of the email. The summary must highlight the important points, dates, people, questions, and action items.';
+        document.querySelector("#instructions").value = res.instructions || getDefaultSummaryInstructions();
+        document.querySelector("#name").value = res.name || getDefaultName();
+        document.querySelector("#actionInstructions").value = res.actionInstructions || getNamedActionRequiredInstructions(res.name || '');
     });
 }
 

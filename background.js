@@ -1,6 +1,8 @@
 import * as messageTools from '/modules/messageTools.mjs';
+import { getDefaultSummaryInstructions, getNamedActionRequiredInstructions } from '/defaults.js';
 
 const SUMMARY_PREFIX = "[SUMMARY]"
+const ACTION_REQUIRED = "[ACTION_REQUIRED]"
 const DEFAULT_CONTEXT_WINDOW = 2048
 
 class ResponseError extends Error {
@@ -48,14 +50,9 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
             so we retry a few times. Note Ollama queues requests, so there is no benefit to
             sending multiple requests in parallel.
          */
-        let summary = null
-        for (let i = 0; i < 12; ++i) {
-            summary = await getSummary(content)
-            if (summary) {
-                break
-            }
-            await new Promise(r => setTimeout(r, 5000));
-        }
+        const summary = await getSummaryWithRetry(await getPrompt(content))
+
+        const actionRequired = await getSummaryWithRetry(getNamedActionRequiredInstructions(getName())) === "true";
 
         /*
             If Ollama isn't running or there was another error, log it and exit.
@@ -96,11 +93,29 @@ async function getModel() {
     return model.trim();
 }
 
+async function getName() {
+    let { name } = await browser.storage.local.get({ name : "" });
+    return name.trim();
+}
+
 async function getInstructions() {
     return await browser.storage.local.get()
-        .then(getItem => getItem.instructions?.trim() || "Provide a two paragraph summary of the email. " +
-            "The summary must highlight the important points, dates, people, questions, and action items.")
+        .then(getItem => getItem.instructions?.trim() || getDefaultSummaryInstructions());
 }
+
+
+async function getActionRequiredInstructions() {
+    const name = await getName();
+
+    if (!name) {
+        return "Based on the content of the email, determine if there are any action items that require a response. " +
+                "Return the literal string `true` or `false`.";
+    }
+
+    return await browser.storage.local.get()
+        .then(getItem => getItem.actionInstructions?.trim() || getNamedActionRequiredInstructions(name));
+}
+
 
 async function getContextLength() {
     return await browser.storage.local.get({contextwindow: DEFAULT_CONTEXT_WINDOW.toString()})
@@ -117,7 +132,7 @@ async function getContextLength() {
         .then(contextWindow => (contextWindow - 256) * 4)
 }
 
-async function sendNewEmail(message, summary) {
+async function sendNewEmail(message, actionRequired, summary) {
     const email = await getEmailAddress()
     const alias = await getEmailAlias()
 
@@ -127,9 +142,11 @@ async function sendNewEmail(message, summary) {
 
     const emailWithAlias = getToAddress(email, alias)
 
+    const actionRequiredTitle = actionRequired ? " " + ACTION_REQUIRED : ""
+
     const composeTab = await browser.compose.beginNew({
         to: emailWithAlias,
-        subject: SUMMARY_PREFIX + " " + message.subject,
+        subject: SUMMARY_PREFIX + actionRequiredTitle + " " + message.subject,
         plainTextBody: summary
     })
 
@@ -190,6 +207,18 @@ async function processResponse(response) {
     return response
 }
 
+async function getSummaryWithRetry(prompt) {
+    for (let i = 0; i < 12; ++i) {
+        const summary = await getSummary(prompt)
+        if (summary) {
+            return summary
+        }
+        await new Promise(r => setTimeout(r, 5000))
+    }
+
+    return null
+}
+
 async function getPhiPrompt(content) {
     return "<|im_start|>system<|im_sep|>" +
         "You are an expert in reading and summarizing emails." +
@@ -245,12 +274,11 @@ function removeThinkingTags(text) {
 
 /**
  * Call Ollama to generate a summary of the email
- * @param content The plain text context of the email
+ * @param prompt The prompt to pass to ollama
  * @returns {Promise<any>} The email summary
  */
-async function getSummary(content) {
+async function getSummary(prompt) {
     const model = await getModel()
-    const prompt = await getPrompt(content)
     const contextLength = await getContextLength()
 
     // Need to set the OLLAMA_ORIGINS=moz-extension://* environment variable for Ollama

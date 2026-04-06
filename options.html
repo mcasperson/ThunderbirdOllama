@@ -69,9 +69,17 @@
     <br/>
     <textarea type="text" id="instructions"></textarea>
     <p>The custom instructions to be used for summarization.</p>
+    <label>Your Name</label>
+    <br/>
+    <input type="text" id="name">
+    <p>This is your name. This is used to determine if any action is required by you based on the content of the email.</p>
+    <label for="actionInstructions">Action Required Instructions</label>
+    <br/>
+    <textarea type="text" id="actionInstructions"></textarea>
+    <p>The custom instructions to be used to determine if any action is required by you.</p>
     <button type="submit">Save</button>
 </form>
-<script src="options.js"></script>
+<script type="module" src="options.js"></script>
 </body>
 
 </html>
