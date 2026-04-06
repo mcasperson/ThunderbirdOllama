@@ -28,3 +28,9 @@ function restoreOptions() {
 
 document.addEventListener('DOMContentLoaded', restoreOptions);
 document.querySelector("form").addEventListener("submit", saveOptions);
+document.getElementById("regenerate").addEventListener("click", async () => {
+    const gettingItem = browser.storage.local.get();
+    gettingItem.then((res) => {
+        document.querySelector("#actionInstructions").value = getNamedActionRequiredInstructions(document.querySelector("#name").value || '');
+    });
+})
