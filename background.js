@@ -52,7 +52,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
          */
         const summary = await getSummaryWithRetry(await getPrompt(content))
 
-        const actionRequired = await getSummaryWithRetry(getNamedActionRequiredInstructions(getName())) === "true";
+        const actionRequired = await getSummaryWithRetry(getActionRequiredInstructions()) === "true";
 
         /*
             If Ollama isn't running or there was another error, log it and exit.
@@ -66,7 +66,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
 
         console.log(processedSummary)
 
-        await sendNewEmail(message, processedSummary)
+        await sendNewEmail(message, actionRequired, processedSummary)
     }
 })
 
@@ -106,11 +106,6 @@ async function getInstructions() {
 
 async function getActionRequiredInstructions() {
     const name = await getName();
-
-    if (!name) {
-        return "Based on the content of the email, determine if there are any action items that require a response. " +
-                "Return the literal string `true` or `false`.";
-    }
 
     return await browser.storage.local.get()
         .then(getItem => getItem.actionInstructions?.trim() || getNamedActionRequiredInstructions(name));
