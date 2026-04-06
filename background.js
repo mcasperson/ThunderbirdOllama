@@ -52,7 +52,7 @@ messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
          */
         const summary = await getSummaryWithRetry(await getPrompt(content))
 
-        const actionRequired = await getSummaryWithRetry(getActionRequiredInstructions()) === "true";
+        const actionRequired = await getSummaryWithRetry(await getActionRequiredInstructions()) === "true";
 
         /*
             If Ollama isn't running or there was another error, log it and exit.
